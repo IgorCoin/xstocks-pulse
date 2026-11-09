@@ -149,11 +149,10 @@ body.nosf .sf{display:none}
         <button type="button" role="tab" data-v="views" aria-selected="true">Views</button>
         <button type="button" role="tab" data-v="likes" aria-selected="false">Likes</button>
         <button type="button" role="tab" data-v="posts" aria-selected="false">Posts</button>
-        <button type="button" role="tab" data-v="smart" aria-selected="false" class="sf">Smart followers</button>
       </div>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>#</th><th>User</th><th></th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Smart foll.</th><th class="sf">Sorsa</th></tr></thead>
+      <thead><tr><th>#</th><th>User</th><th></th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Sorsa Score</th></tr></thead>
       <tbody id="rows"><tr><td colspan="9" class="na">Loading…</td></tr></tbody>
     </table></div>
   </section>
@@ -180,8 +179,7 @@ async function init(){
   stats=await get('/api/stats').catch(()=>null);
   if(stats){
     document.body.classList.toggle('nosf',!stats.smart);
-    if(!stats.smart)$('#sort [data-v=smart]').remove();
-    else $('.hero p').textContent+=' Smart followers and score come from Sorsa.';
+    else $('.hero p').textContent+=' Sorsa Score comes from Sorsa.';
     $('#links').innerHTML=`<a href="https://x.com/${esc(stats.official)}" target="_blank" rel="noopener">@${esc(stats.official)}</a>`;
     $('#totals').innerHTML=`<div class="feature"><span class="eyebrow">Community total</span><b>${fmt(stats.views)}</b><p>views across ${fmt(stats.posts)} posts from ${fmt(stats.users)} users</p></div><div class="tiles"><div class="tile"><b>${fmt(stats.likes)}</b><span>Total likes</span></div><div class="tile"><b>${fmt(stats.posts)}</b><span>Total posts</span></div><div class="tile"><b>${fmt(stats.users)}</b><span>Indexed users</span></div></div>`;
     if(stats.lastRun)$('#fresh').textContent='Data refreshes once every 24 hours. Last update: '+new Date(stats.lastRun).toLocaleString();
@@ -190,7 +188,7 @@ async function init(){
     $('#counted').innerHTML=`<li>Original posts and quote posts. Retweets and replies are not counted.</li>
       <li>Only posts that tag @${esc(stats.official)} are counted.</li>
       <li>Ranked by views.</li>
-      ${stats.smart?'<li>Smart followers (influencers, projects and VCs among followers) and Sorsa Score come from Sorsa and refresh daily.</li>':''}`;
+      ${stats.smart?'<li>Sorsa Score comes from Sorsa and refreshes daily.</li>':''}`;
   }
   board();
 }
@@ -198,7 +196,7 @@ async function init(){
 async function board(){
   try{
     const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
-    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b>${r.moniScore==null?'':`<span class="ms">Sorsa Score: ${fmt(r.moniScore)}</span>`}</div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b>${r.moniScore==null?'':`<span class="ms">Sorsa Score: ${fmt(r.moniScore)}</span>`}</div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="9" class="na">${esc(e.message)}</td></tr>`}
 }
 
@@ -208,7 +206,7 @@ function show(p){
   $('#pname').textContent=(p.name||'@'+p.user);
   $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers · rank #'+p.rank;
   const av=$('#pav');if(/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){av.src=p.avatar;av.hidden=false}else av.hidden=true;
-  $('#ptiles').innerHTML=[['Views',p.views,1],['Likes',p.likes],['Posts',p.posts],['Smart followers',p.smart],['Sorsa score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
+  $('#ptiles').innerHTML=[['Views',p.views,1],['Likes',p.likes],['Posts',p.posts],['Sorsa score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
     .filter(t=>(stats&&stats.smart)||!/^(Smart|Sorsa)/.test(t[0]))
     .map(t=>`<div class="tile${t[2]?' hot':''}"><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b><span>${t[0]}</span></div>`).join('');
   const m=p.mentions;
@@ -245,7 +243,7 @@ $('#png').onclick=()=>{
   x.fillStyle=acc;x.font='500 130px monospace';x.fillText(fmt(cur.views),70,410);
   x.fillStyle=mute;x.font='400 28px monospace';x.fillText('VIEWS',74,452);
   const st=[['LIKES',fmt(cur.likes)],['POSTS',String(cur.posts)]];
-  if(stats&&stats.smart)st.push(['SMART',fmt(cur.smart)]);
+  if(stats&&stats.smart&&cur.moniScore!=null)st.push(['SORSA',fmt(cur.moniScore)]);
   st.forEach((s,i)=>{const px=70+i*280;x.fillStyle=mute;x.font='400 24px monospace';x.fillText(s[0],px,540);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(s[1],px,590)});
   const a=document.createElement('a');a.download='xstocks-pulse-'+cur.user+'.png';a.href=c.toDataURL('image/png');a.click();
 };

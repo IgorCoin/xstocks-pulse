@@ -180,7 +180,7 @@ async function init(){
     if(stats.backfill)$('#fresh').textContent+=' Posts counted since '+(stats.backfill.done?stats.backfill.since:stats.backfill.from)+'.';
     const w=stats.weights;
     $('#counted').innerHTML=`<li>Original posts, quote posts and replies with real commentary. Plain retweets and empty replies are excluded.</li>
-      <li>Posts that mention @${esc(stats.official)}, use the keyword or the $xStocks tag.</li>
+      <li>Only posts that tag @${esc(stats.official)} are counted.</li>
       <li>Points = ${w.views*100}% of views + ${w.likes*100}% of likes + ${w.posts*100}% of posts${w.smart?` + ${w.smart*100}% of smart followers`:''}.</li>
       ${stats.smart?'<li>Smart followers and Moni score come from Moni and refresh daily.</li>':''}`;
   }
@@ -204,7 +204,7 @@ function show(p){
     .filter(t=>(stats&&stats.smart)||!/^(Smart|Moni)/.test(t[0]))
     .map(t=>`<div class="tile${t[2]?' hot':''}"><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b><span>${t[0]}</span></div>`).join('');
   const m=p.mentions;
-  $('#mb').innerHTML=`<dt>Posts mentioning @${esc(stats?stats.official:'')}</dt><dd>${m.official}</dd><dt>Posts with the keyword</dt><dd>${m.keyword}</dd><dt>Posts with the $xStocks tag</dt><dd>${m.tag}</dd><dt>Substantive replies</dt><dd>${m.reply}</dd><dt>First post</dt><dd>${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${new Date(p.first.created).toLocaleDateString()}</a>`:'—'}</dd>`;
+  $('#mb').innerHTML=`<dt>Posts mentioning @${esc(stats?stats.official:'')}</dt><dd>${m.official}</dd><dt>First post</dt><dd>${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${new Date(p.first.created).toLocaleDateString()}</a>`:'—'}</dd>`;
   $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
   const text=`I scored ${fmt(p.points)} points and rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
   $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);

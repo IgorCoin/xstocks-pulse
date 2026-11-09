@@ -1,7 +1,8 @@
 {
   "project": "xStocks",
   "officialHandle": "xStocksFi",
-  "searchQuery": "xStocks OR @xStocksFi OR #xStocks OR \"$xStocks\"",
+  "searchQuery": "@xStocksFi",
+  "requireOfficialTag": true,
   "keywords": ["xstocks"],
   "tags": ["$xstocks", "#xstocks"],
   "weights": { "views": 0.025, "likes": 1, "posts": 2.5, "smart": 0 },

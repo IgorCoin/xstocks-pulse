@@ -282,32 +282,36 @@ $('#scanform').onsubmit=async e=>{
 let cardC=null;
 const loadImg=u=>new Promise(r=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u});
 async function drawCard(p,withAv){
-  const c=document.createElement('canvas');c.width=1200;c.height=630;const x=c.getContext('2d');
-  const bg='#151819',ink='#f3f6f5',mute='#9aa5a4',acc='#7ddcc8';
-  x.fillStyle=bg;x.fillRect(0,0,1200,630);
-  const g=x.createRadialGradient(1050,40,10,1050,40,700);g.addColorStop(0,'rgba(125,220,200,.22)');g.addColorStop(1,'rgba(125,220,200,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
-  x.fillStyle=acc;x.fillRect(0,0,1200,8);
-  x.strokeStyle='#283234';x.lineWidth=2;x.strokeRect(24,24,1152,582);
+  const S=2,c=document.createElement('canvas');c.width=1200*S;c.height=630*S;const x=c.getContext('2d');x.scale(S,S);
+  const ink='#f3f6f5',mute='#9aa5a4',SANS='"DM Sans",system-ui,sans-serif',MONO='"JetBrains Mono",ui-monospace,Menlo,monospace';
+  const grad=(x0,x1)=>{const g=x.createLinearGradient(x0,0,x1,0);g.addColorStop(0,'#7ecbe8');g.addColorStop(.55,'#6fd0c8');g.addColorStop(1,'#6dd3b4');return g};
+  x.fillStyle='#151819';x.fillRect(0,0,1200,630);
+  let g=x.createRadialGradient(1100,0,20,1100,0,620);g.addColorStop(0,'rgba(126,203,232,.30)');g.addColorStop(1,'rgba(126,203,232,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  g=x.createRadialGradient(0,640,20,0,640,600);g.addColorStop(0,'rgba(109,211,180,.22)');g.addColorStop(1,'rgba(109,211,180,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  x.fillStyle=grad(0,1200);x.fillRect(0,0,1200,8);
   let tx=70;
-  if(withAv&&/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){const im=await loadImg(p.avatar);if(im){x.save();x.beginPath();x.arc(130,130,60,0,7);x.clip();x.drawImage(im,70,70,120,120);x.restore();x.strokeStyle=acc;x.lineWidth=3;x.beginPath();x.arc(130,130,60,0,7);x.stroke();tx=215}}
-  x.fillStyle=ink;x.font='800 64px sans-serif';x.fillText((p.name||'@'+p.user).slice(0,22),tx,125);
-  x.fillStyle=mute;x.font='400 30px monospace';x.fillText('@'+p.user+' · '+fmt(p.followers)+' followers',tx,172);
+  if(withAv&&/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){const im=await loadImg(p.avatar);if(im){
+    x.save();x.beginPath();x.arc(140,140,70,0,7);x.clip();x.drawImage(im,70,70,140,140);x.restore();
+    x.lineWidth=4;x.strokeStyle=grad(70,210);x.beginPath();x.arc(140,140,72,0,7);x.stroke();tx=240}}
+  x.textBaseline='alphabetic';
+  x.fillStyle=ink;x.font='800 60px '+SANS;
+  let nm=(p.name||'@'+p.user);while(x.measureText(nm).width>1130-tx&&nm.length>3)nm=nm.slice(0,-2);if(nm!==(p.name||'@'+p.user))nm+='…';
+  x.fillText(nm,tx,128);
+  x.fillStyle=mute;x.font='400 28px '+MONO;x.fillText('@'+p.user+' · '+fmt(p.followers)+' followers',tx,172);
   const rk=p.ranks||{};
   const bd=['Total #'+p.rank,'Views #'+(rk.views||p.rank),'Likes #'+(rk.likes||'-'),'Posts #'+(rk.posts||'-')];
-  let bx=70;x.font='500 26px monospace';
-  bd.forEach(t=>{const w=x.measureText(t).width+36;x.strokeStyle='#3d8478';x.lineWidth=2;x.beginPath();x.roundRect(bx,225,w,46,23);x.stroke();x.fillStyle=acc;x.fillText(t,bx+18,257);bx+=w+14});
-  x.fillStyle=acc;x.font='500 120px monospace';x.fillText(fmt(p.views),70,395);
-  x.fillStyle=mute;x.font='400 26px monospace';x.fillText('TOTAL VIEWS',74,435);
-  const st=[['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
-  if(p.moniScore!=null)st.push(['SORSA SCORE',fmt(p.moniScore)]);
-  st.forEach((q,i)=>{const px=70+i*250;x.fillStyle=mute;x.font='400 22px monospace';x.fillText(q[0],px,520);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(q[1],px,568)});
-  const pts=p.series||[];
-  if(pts.length>1){const X0=640,X1=1130,Y0=330,Y1=560,t0=pts[0][0],t1=pts[pts.length-1][0],mx=pts[pts.length-1][1]||1;
-    const px=t=>X0+(t1===t0?0:(t-t0)/(t1-t0))*(X1-X0),py=v=>Y1-(v/mx)*(Y1-Y0);
-    x.beginPath();pts.forEach((q,i)=>i?x.lineTo(px(q[0]),py(q[1])):x.moveTo(px(q[0]),py(q[1])));
-    x.lineTo(px(t1),Y1);x.lineTo(px(t0),Y1);x.closePath();x.fillStyle='rgba(125,220,200,.14)';x.fill();
-    x.beginPath();pts.forEach((q,i)=>i?x.lineTo(px(q[0]),py(q[1])):x.moveTo(px(q[0]),py(q[1])));x.strokeStyle=acc;x.lineWidth=4;x.stroke();}
-  x.fillStyle=mute;x.font='500 22px monospace';x.textAlign='right';x.fillText('xstocks-pulse · '+location.host,1130,598);x.textAlign='left';
+  let bx=70;x.font='500 24px '+MONO;
+  bd.forEach(t=>{const w=x.measureText(t).width+40;x.strokeStyle='rgba(126,203,232,.55)';x.lineWidth=2;x.beginPath();x.roundRect(bx,252,w,48,24);x.stroke();x.fillStyle='#9fe0ee';x.fillText(t,bx+20,285);bx+=w+14});
+  const box=[['TOTAL VIEWS',fmt(p.views),1],['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
+  if(p.moniScore!=null)box.push(['SORSA SCORE',fmt(p.moniScore)]);
+  const gap=20,bw=(1060-gap*(box.length-1))/box.length,by=340,bh=190;
+  box.forEach((q,i)=>{const px=70+i*(bw+gap);
+    x.fillStyle=q[2]?'rgba(111,208,200,.10)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(px,by,bw,bh,22);x.fill();
+    x.strokeStyle=q[2]?'rgba(111,208,200,.55)':'rgba(111,208,200,.22)';x.lineWidth=2;x.stroke();
+    x.fillStyle=mute;x.font='500 22px '+MONO;x.fillText(q[0],px+28,by+54);
+    x.fillStyle=q[2]?grad(px,px+bw):ink;x.font='800 '+(q[2]?78:62)+'px '+SANS;x.fillText(q[1],px+28,by+138)});
+  x.fillStyle=grad(70,300);x.font='800 28px '+SANS;x.fillText('xStocks Pulse',70,596);
+  x.fillStyle=mute;x.font='400 22px '+MONO;x.textAlign='right';x.fillText(location.host,1130,596);x.textAlign='left';
   return c;
 }
 async function makeCard(p){

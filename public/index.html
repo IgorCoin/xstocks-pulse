@@ -179,7 +179,7 @@ async function init(){
   stats=await get('/api/stats').catch(()=>null);
   if(stats){
     document.body.classList.toggle('nosf',!stats.smart);
-    else $('.hero p').textContent+=' Sorsa Score comes from Sorsa.';
+    if(stats.smart)$('.hero p').textContent+=' Sorsa Score comes from Sorsa.';
     $('#links').innerHTML=`<a href="https://x.com/${esc(stats.official)}" target="_blank" rel="noopener">@${esc(stats.official)}</a>`;
     $('#totals').innerHTML=`<div class="feature"><span class="eyebrow">Community total</span><b>${fmt(stats.views)}</b><p>views across ${fmt(stats.posts)} posts from ${fmt(stats.users)} users</p></div><div class="tiles"><div class="tile"><b>${fmt(stats.likes)}</b><span>Total likes</span></div><div class="tile"><b>${fmt(stats.posts)}</b><span>Total posts</span></div><div class="tile"><b>${fmt(stats.users)}</b><span>Indexed users</span></div></div>`;
     if(stats.lastRun)$('#fresh').textContent='Data refreshes once every 24 hours. Last update: '+new Date(stats.lastRun).toLocaleString();

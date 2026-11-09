@@ -1,0 +1,16 @@
+{
+  "project": "xStocks",
+  "officialHandle": "xStocksFi",
+  "searchQuery": "xStocks OR @xStocksFi OR #xStocks OR \"$xStocks\"",
+  "keywords": ["xstocks"],
+  "tags": ["$xstocks", "#xstocks"],
+  "weights": { "views": 0.025, "likes": 1, "posts": 2.5, "smart": 0 },
+  "substantiveReplyMinChars": 25,
+  "firstRunDays": 30,
+  "refreshWindowDays": 7,
+  "maxPagesPerRun": 50,
+  "backfill": { "sinceDate": "2026-01-01", "chunkDays": 1, "maxPagesPerChunk": 25, "maxBudgetUsd": 1, "pricePerTweetUsd": 0.00015 },
+  "moniTopN": 100,
+  "moniTtlHours": 24,
+  "scan": { "perIpPerHour": 5, "globalPerDay": 100, "dailyBudgetUsd": 1, "maxPages": 15, "sinceDate": "2026-01-01", "cacheHours": 24 }
+}

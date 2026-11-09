@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xStocks Pulse</title>
+<meta name="description" content="See who is spreading the word about xStocks on X: views, likes, posts and points.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Dark mint look: near-black ground, one mint accent, big mint numerals, mono eyebrow labels with a leading dash. */
+:root{
+  --bg:#151819; --panel:#1b2123; --ink:#f3f6f5; --mute:#9aa5a4; --line:#283234;
+  --accent:#7ddcc8; --accent-deep:#2a5a52; --accent-line:#3d8478; --accent-ink:#0e1917;
+  --f-text:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(1100px 480px at 85% -8%,rgba(125,220,200,.07),transparent 60%);color:var(--ink);font:15px/1.55 var(--f-text);padding:0 16px 56px}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+nav{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);font-size:.85rem}
+nav b{font-weight:700;letter-spacing:-.01em;font-size:1rem}
+nav b span,.hero h1 span{color:var(--accent)}
+nav a{color:var(--mute);text-decoration:none;margin-left:16px}
+nav a:hover{color:var(--accent)}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font:500 .72rem var(--f-num);letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--accent)}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding:34px 0 6px}
+.hero h1{font-size:clamp(2.2rem,7vw,4rem);line-height:1.04;margin:0;letter-spacing:-.045em;font-weight:700;text-wrap:balance;max-width:16ch}
+.hero p{margin:0;color:var(--mute);max-width:58ch}
+form{display:flex;flex-wrap:wrap;gap:10px;width:100%;max-width:520px;justify-content:center}
+input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;min-width:0;flex:1 1 220px}
+input::placeholder{color:var(--mute)}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,.btn{font:inherit;font-weight:600;font-size:.9rem;border-radius:10px;border:1px solid var(--accent-line);background:transparent;color:var(--accent);padding:10px 18px;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{background:rgba(125,220,200,.08)}
+button.primary,.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.primary:hover,.btn.primary:hover{background:#95e6d4}
+button:disabled{opacity:.6;cursor:progress}
+.hint{font-size:.8rem;color:var(--mute)}
+#msg{font-size:.88rem;min-height:1.3em;color:var(--mute)}
+#msg.err{color:#f0a58f}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+h2{font:500 .72rem var(--f-num);text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin:0 0 14px;display:flex;align-items:center;gap:12px}
+h2::before{content:"";width:26px;height:2px;background:var(--accent)}
+#totals{display:flex;flex-direction:column;gap:12px}
+.feature{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.feature b{font:700 clamp(3rem,11vw,5.8rem)/1 var(--f-text);letter-spacing:-.055em;color:var(--accent);font-variant-numeric:tabular-nums}
+.feature p{margin:0;color:var(--mute);max-width:54ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.tile b{font:500 1.5rem/1.25 var(--f-num);font-variant-numeric:tabular-nums}
+.tile span{font-size:.75rem;color:var(--mute)}
+.tile.hot b{color:var(--accent)}
+.prof-head{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.who{display:flex;gap:12px;align-items:center;min-width:0}
+.av{width:52px;height:52px;border-radius:50%;background:var(--line);object-fit:cover;flex:none}
+.who h3{margin:0;font-size:1.25rem;letter-spacing:-.02em;overflow-wrap:anywhere}
+.who small{color:var(--mute);display:block}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-top:18px}
+@media(min-width:860px){.cols{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px}
+dt{color:var(--mute)}
+dd{margin:0;font-family:var(--f-num);font-variant-numeric:tabular-nums;text-align:right}
+dd a{color:var(--accent)}
+.posts{list-style:none;margin:0;padding:0}
+.posts li{padding:11px 0;border-bottom:1px solid var(--line)}
+.posts li:last-child{border:0}
+.posts p{margin:0 0 4px;overflow-wrap:anywhere;font-size:.9rem}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font:400 .75rem var(--f-num);color:var(--mute)}
+.meta a{color:var(--accent);font-family:var(--f-text);font-weight:700;text-decoration:none}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bar h2{margin:0}
+.pills{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border:1px solid var(--line);border-radius:13px;background:var(--bg)}
+.pills button{border:1px solid transparent;background:none;color:var(--mute);padding:7px 13px;border-radius:9px;font-weight:600;font-size:.85rem}
+.pills button:hover{color:var(--ink);background:none}
+.pills button[aria-selected="true"]{background:var(--accent-deep);border-color:var(--accent-line);color:var(--ink)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:10px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font:500 .68rem var(--f-num);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+td{font-family:var(--f-num);font-size:.82rem;font-variant-numeric:tabular-nums}
+td:nth-child(2){font-family:var(--f-text);font-size:.92rem;font-weight:500}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:rgba(125,220,200,.06)}
+td.rank{color:var(--mute);width:2.5em}
+td.pts{color:var(--accent);font-weight:500}
+td.sm{color:var(--accent)}
+.na{color:var(--mute)}
+.count{margin:0;padding-left:18px;color:var(--mute);font-size:.9rem}
+.count li{margin:5px 0}
+footer{border-top:1px solid var(--line);padding-top:16px;color:var(--mute);font-size:.8rem}
+body.nosf .sf{display:none}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <b>xStocks <span>Pulse</span></b>
+    <div id="links"></div>
+  </nav>
+
+  <section class="hero">
+    <span class="eyebrow">X activity tracker</span>
+    <h1>Who is spreading <span>xStocks</span> on X?</h1>
+    <p>Type any X handle to see how much it has helped xStocks grow: views, likes, posts and points.</p>
+    <form id="scanform">
+      <input id="h" placeholder="@handle" autocomplete="off" spellcheck="false" maxlength="16" aria-label="X handle">
+      <button class="primary" id="scan">Scan</button>
+    </form>
+    <div id="msg" role="status"></div>
+    <span class="hint" id="fresh">Data refreshes once every 24 hours.</span>
+  </section>
+
+  <section class="panel" id="profile" hidden>
+    <div class="prof-head">
+      <div class="who"><img class="av" id="pav" alt="" hidden><div><h3 id="pname"></h3><small id="pmeta"></small></div></div>
+      <div class="actions">
+        <a class="btn primary" id="share" target="_blank" rel="noopener">Share on X</a>
+        <button id="png">Download PNG</button>
+        <button id="back">Back to leaderboard</button>
+      </div>
+    </div>
+    <div class="tiles" id="ptiles"></div>
+    <div class="cols">
+      <div><h2>Mention breakdown</h2><dl id="mb"></dl></div>
+      <div><h2>Top posts</h2><ol class="posts" id="ptop"></ol></div>
+    </div>
+  </section>
+
+  <section id="totals"></section>
+
+  <section class="panel" id="board">
+    <div class="bar">
+      <h2 style="margin:0">Leaderboard</h2>
+      <div class="pills" id="sort" role="tablist" aria-label="Rank by">
+        <button type="button" role="tab" data-v="points" aria-selected="true">Points</button>
+        <button type="button" role="tab" data-v="views" aria-selected="false">Views</button>
+        <button type="button" role="tab" data-v="likes" aria-selected="false">Likes</button>
+        <button type="button" role="tab" data-v="posts" aria-selected="false">Posts</button>
+        <button type="button" role="tab" data-v="smart" aria-selected="false" class="sf">Smart followers</button>
+      </div>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>#</th><th>User</th><th>Points</th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Smart foll.</th><th class="sf">Moni</th></tr></thead>
+      <tbody id="rows"><tr><td colspan="8" class="na">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="panel">
+    <h2>What gets counted</h2>
+    <ul class="count" id="counted"></ul>
+  </section>
+
+  <footer>Independent community tool. Not affiliated with xStocks or X. Does not handle funds. Not financial advice.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':Math.round(n).toLocaleString('en-US');
+const safeUrl=u=>/^https:\/\/(x|twitter)\.com\//.test(u)?u:'#';
+let stats=null,cur=null,sortBy='points';
+
+function msg(t,err){const m=$('#msg');m.textContent=t||'';m.className=err?'err':''}
+async function get(u,opt){const r=await fetch(u,opt);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
+
+async function init(){
+  stats=await get('/api/stats').catch(()=>null);
+  if(stats){
+    document.body.classList.toggle('nosf',!stats.smart);
+    if(!stats.smart)$('#sort [data-v=smart]').remove();
+    else $('.hero p').textContent+=' Smart followers come from Moni.';
+    $('#links').innerHTML=`<a href="https://x.com/${esc(stats.official)}" target="_blank" rel="noopener">@${esc(stats.official)}</a>`;
+    $('#totals').innerHTML=`<div class="feature"><span class="eyebrow">Community total</span><b>${fmt(stats.views)}</b><p>views across ${fmt(stats.posts)} posts from ${fmt(stats.users)} users</p></div><div class="tiles"><div class="tile"><b>${fmt(stats.likes)}</b><span>Total likes</span></div><div class="tile"><b>${fmt(stats.posts)}</b><span>Total posts</span></div><div class="tile"><b>${fmt(stats.users)}</b><span>Indexed users</span></div></div>`;
+    if(stats.lastRun)$('#fresh').textContent='Data refreshes once every 24 hours. Last update: '+new Date(stats.lastRun).toLocaleString();
+    if(stats.backfill)$('#fresh').textContent+=' Posts counted since '+(stats.backfill.done?stats.backfill.since:stats.backfill.from)+'.';
+    const w=stats.weights;
+    $('#counted').innerHTML=`<li>Original posts, quote posts and replies with real commentary. Plain retweets and empty replies are excluded.</li>
+      <li>Posts that mention @${esc(stats.official)}, use the keyword or the $xStocks tag.</li>
+      <li>Points = ${w.views*100}% of views + ${w.likes*100}% of likes + ${w.posts*100}% of posts${w.smart?` + ${w.smart*100}% of smart followers`:''}.</li>
+      ${stats.smart?'<li>Smart followers and Moni score come from Moni and refresh daily.</li>':''}`;
+  }
+  board();
+}
+
+async function board(){
+  try{
+    const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr data-u="${esc(r.user)}"><td class="rank">${r.rank}</td><td>@${esc(r.user)}</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="8" class="na">No data yet. The first index run is in progress.</td></tr>';
+  }catch(e){$('#rows').innerHTML=`<tr><td colspan="8" class="na">${esc(e.message)}</td></tr>`}
+}
+
+function show(p){
+  cur=p;
+  $('#profile').hidden=false;$('#board').hidden=true;$('#totals').hidden=true;
+  $('#pname').textContent=(p.name||'@'+p.user);
+  $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers · rank #'+p.rank;
+  const av=$('#pav');if(/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){av.src=p.avatar;av.hidden=false}else av.hidden=true;
+  $('#ptiles').innerHTML=[['Points',p.points,1],['Views',p.views],['Likes',p.likes],['Posts',p.posts],['Smart followers',p.smart],['Moni score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
+    .filter(t=>(stats&&stats.smart)||!/^(Smart|Moni)/.test(t[0]))
+    .map(t=>`<div class="tile${t[2]?' hot':''}"><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b><span>${t[0]}</span></div>`).join('');
+  const m=p.mentions;
+  $('#mb').innerHTML=`<dt>Posts mentioning @${esc(stats?stats.official:'')}</dt><dd>${m.official}</dd><dt>Posts with the keyword</dt><dd>${m.keyword}</dd><dt>Posts with the $xStocks tag</dt><dd>${m.tag}</dd><dt>Substantive replies</dt><dd>${m.reply}</dd><dt>First post</dt><dd>${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${new Date(p.first.created).toLocaleDateString()}</a>`:'—'}</dd>`;
+  $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
+  const text=`I scored ${fmt(p.points)} points and rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
+  $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);
+  window.scrollTo({top:0});
+}
+
+$('#back').onclick=()=>{$('#profile').hidden=true;$('#board').hidden=false;$('#totals').hidden=false;msg('')};
+$('#sort').onclick=e=>{const b=e.target.closest('button[data-v]');if(!b)return;sortBy=b.dataset.v;$('#sort').querySelectorAll('button').forEach(x=>x.setAttribute('aria-selected',x===b));board()};
+$('#rows').onclick=async e=>{const tr=e.target.closest('tr[data-u]');if(!tr)return;
+  try{show(await get('/api/user/'+encodeURIComponent(tr.dataset.u)))}catch(err){msg(err.message,true)}};
+
+$('#scanform').onsubmit=async e=>{
+  e.preventDefault();
+  const h=$('#h').value.trim().replace(/^@/,'');
+  if(!/^\w{1,15}$/.test(h)){msg('Enter a valid X handle.',true);return}
+  $('#scan').disabled=true;msg('Scanning @'+h+'…');
+  try{show(await get('/api/scan/'+encodeURIComponent(h),{method:'POST'}));msg('')}
+  catch(err){msg(err.message,true)}finally{$('#scan').disabled=false}
+};
+
+$('#png').onclick=()=>{
+  if(!cur)return;
+  const c=document.createElement('canvas');c.width=1200;c.height=630;const x=c.getContext('2d');
+  const bg='#151819',ink='#f3f6f5',mute='#9aa5a4',acc='#7ddcc8';
+  x.fillStyle=bg;x.fillRect(0,0,1200,630);
+  x.fillStyle=acc;x.fillRect(0,0,1200,10);
+  x.fillStyle=mute;x.font='500 28px monospace';x.fillText('XSTOCKS PULSE',70,90);
+  x.fillStyle=ink;x.font='800 76px sans-serif';x.fillText('@'+cur.user,70,200);
+  x.fillStyle=mute;x.font='400 30px monospace';x.fillText('rank #'+cur.rank+' · '+fmt(cur.followers)+' followers',70,250);
+  x.fillStyle=acc;x.font='500 130px monospace';x.fillText(fmt(cur.points),70,410);
+  x.fillStyle=mute;x.font='400 28px monospace';x.fillText('POINTS',74,452);
+  const st=[['VIEWS',fmt(cur.views)],['LIKES',fmt(cur.likes)],['POSTS',String(cur.posts)]];
+  if(stats&&stats.smart)st.push(['SMART',fmt(cur.smart)]);
+  st.forEach((s,i)=>{const px=70+i*280;x.fillStyle=mute;x.font='400 24px monospace';x.fillText(s[0],px,540);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(s[1],px,590)});
+  const a=document.createElement('a');a.download='xstocks-pulse-'+cur.user+'.png';a.href=c.toDataURL('image/png');a.click();
+};
+init();
+</script>
+</body>
+</html>

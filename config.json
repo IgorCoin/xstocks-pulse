@@ -7,7 +7,7 @@
   "weights": { "views": 0.025, "likes": 1, "posts": 2.5, "smart": 0 },
   "substantiveReplyMinChars": 25,
   "firstRunDays": 30,
-  "refreshWindowDays": 7,
+  "refreshWindowDays": 2,
   "maxPagesPerRun": 50,
   "backfill": { "sinceDate": "2026-01-01", "chunkDays": 1, "maxPagesPerChunk": 25, "maxBudgetUsd": 1, "pricePerTweetUsd": 0.00015 },
   "moniTopN": 100,

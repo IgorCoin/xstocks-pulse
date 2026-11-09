@@ -53,7 +53,7 @@ h2::before{content:"";width:26px;height:2px;background:var(--accent)}
 .tile span{font-size:.75rem;color:var(--mute)}
 .tile.hot b{color:var(--accent)}
 #profile{position:relative;overflow:hidden}
-.pbg{position:absolute;inset:0;background:url("https://i2c.seadn.io/ink/0x46625e7de9894d83fca49e79cb53b5c25550ce99/00991ded3de4708837b21ea15ffe98/ea00991ded3de4708837b21ea15ffe98.png?w=500") right top/auto 78% no-repeat;opacity:.28;-webkit-mask-image:linear-gradient(to left,#000 10%,transparent 75%);mask-image:linear-gradient(to left,#000 10%,transparent 75%);pointer-events:none}
+.pbg{position:absolute;inset:0;background:url("/templar.jpg") right center/auto 105% no-repeat;mix-blend-mode:screen;opacity:.30;-webkit-mask-image:linear-gradient(to left,#000 15%,transparent 80%);mask-image:linear-gradient(to left,#000 15%,transparent 80%);pointer-events:none}
 .pin{position:relative;display:flex;flex-direction:column;gap:16px}
 .av.big{width:84px;height:84px;border:2px solid var(--accent-line)}
 .who h3{font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.04em}
@@ -288,6 +288,12 @@ async function drawCard(p,withAv){
   x.fillStyle='#151819';x.fillRect(0,0,1200,630);
   let g=x.createRadialGradient(1100,0,20,1100,0,620);g.addColorStop(0,'rgba(126,203,232,.30)');g.addColorStop(1,'rgba(126,203,232,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
   g=x.createRadialGradient(0,640,20,0,640,600);g.addColorStop(0,'rgba(109,211,180,.22)');g.addColorStop(1,'rgba(109,211,180,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  const tp=await loadImg('/templar.jpg');
+  if(tp){const o=document.createElement('canvas');o.width=1200;o.height=630;const q=o.getContext('2d');
+    const h=640,w=h*tp.width/tp.height,ix=1200-w+60;q.drawImage(tp,ix,-5,w,h);
+    q.globalCompositeOperation='multiply';let tg=q.createLinearGradient(ix,0,1200,630);tg.addColorStop(0,'#7ecbe8');tg.addColorStop(1,'#6dd3b4');q.fillStyle=tg;q.fillRect(0,0,1200,630);
+    q.globalCompositeOperation='destination-in';let mk=q.createLinearGradient(ix,0,1200,0);mk.addColorStop(0,'rgba(0,0,0,0)');mk.addColorStop(.45,'rgba(0,0,0,.9)');mk.addColorStop(1,'#000');q.fillStyle=mk;q.fillRect(0,0,1200,630);
+    x.save();x.globalCompositeOperation='screen';x.globalAlpha=.8;x.drawImage(o,0,0);x.restore()}
   x.fillStyle=grad(0,1200);x.fillRect(0,0,1200,8);
   let tx=70;
   if(withAv&&/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){const im=await loadImg(p.avatar);if(im){

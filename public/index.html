@@ -52,6 +52,17 @@ h2::before{content:"";width:26px;height:2px;background:var(--accent)}
 .tile b{font:500 1.5rem/1.25 var(--f-num);font-variant-numeric:tabular-nums}
 .tile span{font-size:.75rem;color:var(--mute)}
 .tile.hot b{color:var(--accent)}
+#profile{position:relative;overflow:hidden}
+.pbg{position:absolute;inset:0;background:url("https://i2c.seadn.io/ink/0x46625e7de9894d83fca49e79cb53b5c25550ce99/00991ded3de4708837b21ea15ffe98/ea00991ded3de4708837b21ea15ffe98.png?w=500") right top/auto 78% no-repeat;opacity:.28;-webkit-mask-image:linear-gradient(to left,#000 10%,transparent 75%);mask-image:linear-gradient(to left,#000 10%,transparent 75%);pointer-events:none}
+.pin{position:relative;display:flex;flex-direction:column;gap:16px}
+.av.big{width:84px;height:84px;border:2px solid var(--accent-line)}
+.who h3{font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.04em}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badges span{font:500 .8rem var(--f-num);color:var(--accent);border:1px solid var(--accent-line);border-radius:999px;padding:6px 14px;background:rgba(13,20,22,.6)}
+.pscore{font-weight:600;color:var(--accent);min-height:1em}
+.chart{border:1px solid var(--line);border-radius:14px;background:rgba(13,20,22,.55);padding:10px 12px 6px}
+.chart svg{display:block;width:100%;height:auto}
+.plife{margin:0;color:var(--mute)}
 .prof-head{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}
 .who{display:flex;gap:12px;align-items:center;min-width:0}
 .av{width:52px;height:52px;border-radius:50%;background:var(--line);object-fit:cover;flex:none}
@@ -125,18 +136,20 @@ body.nosf .sf{display:none}
   </section>
 
   <section class="panel" id="profile" hidden>
-    <div class="prof-head">
-      <div class="who"><img class="av" id="pav" alt="" hidden><div><h3 id="pname"></h3><small id="pmeta"></small></div></div>
+    <div class="pbg" aria-hidden="true"></div>
+    <div class="pin">
+      <div class="who"><img class="av big" id="pav" alt="" hidden><div><h3 id="pname"></h3><small id="pmeta"></small></div></div>
+      <div class="badges" id="pbadges"></div>
+      <div class="pscore" id="pscore"></div>
       <div class="actions">
         <a class="btn primary" id="share" target="_blank" rel="noopener">Share on X</a>
         <button id="png">Download PNG</button>
         <button id="back">Back to leaderboard</button>
       </div>
-    </div>
-    <div class="tiles" id="ptiles"></div>
-    <div class="cols">
-      <div><h2>Mention breakdown</h2><dl id="mb"></dl></div>
-      <div><h2>Top posts</h2><ol class="posts" id="ptop"></ol></div>
+      <div class="tiles" id="ptiles"></div>
+      <div class="chart" id="pchart"></div>
+      <p class="plife" id="plife"></p>
+      <h2>Top posts</h2><ol class="posts" id="ptop"></ol>
     </div>
   </section>
 
@@ -200,17 +213,32 @@ async function board(){
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="9" class="na">${esc(e.message)}</td></tr>`}
 }
 
+function drawChart(pts){
+  const el=$('#pchart');
+  if(pts.length<2){el.hidden=true;return}
+  el.hidden=false;
+  const W=900,H=240,P=8,t0=pts[0][0],t1=pts[pts.length-1][0],mx=pts[pts.length-1][1]||1;
+  const X=t=>P+(t1===t0?0:(t-t0)/(t1-t0))*(W-2*P),Y=v=>H-24-(v/mx)*(H-40);
+  const line=pts.map((q,i)=>(i?'L':'M')+X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1)).join('');
+  const ticks=[0,.33,.66,1].map(f=>{const t=t0+(t1-t0)*f;return `<text x="${X(t).toFixed(0)}" y="${H-6}" fill="#9aa5a4" font-size="12" text-anchor="${f===0?'start':f===1?'end':'middle'}">${new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</text>`}).join('');
+  const bars=pts.map(q=>`<line x1="${X(q[0]).toFixed(1)}" x2="${X(q[0]).toFixed(1)}" y1="0" y2="${H-24}" stroke="#7ddcc8" stroke-opacity=".12"/>`).join('');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative views over time">${bars}<path d="${line}L${X(t1)} ${H-24}L${X(t0)} ${H-24}Z" fill="#7ddcc8" fill-opacity=".12"/><path d="${line}" fill="none" stroke="#7ddcc8" stroke-width="2.5"/>${ticks}</svg>`;
+}
+
 function show(p){
   cur=p;
   $('#profile').hidden=false;$('#board').hidden=true;$('#totals').hidden=true;
   $('#pname').textContent=(p.name||'@'+p.user);
-  $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers · rank #'+p.rank;
+  $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers';
   const av=$('#pav');if(/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){av.src=p.avatar;av.hidden=false}else av.hidden=true;
-  $('#ptiles').innerHTML=[['Views',p.views,1],['Likes',p.likes],['Posts',p.posts],['Sorsa score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
-    .filter(t=>(stats&&stats.smart)||!/^(Smart|Sorsa)/.test(t[0]))
-    .map(t=>`<div class="tile${t[2]?' hot':''}"><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b><span>${t[0]}</span></div>`).join('');
-  const m=p.mentions;
-  $('#mb').innerHTML=`<dt>Posts mentioning @${esc(stats?stats.official:'')}</dt><dd>${m.official}</dd><dt>First post</dt><dd>${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${new Date(p.first.created).toLocaleDateString()}</a>`:'—'}</dd>`;
+  const rk=p.ranks||{};
+  $('#pbadges').innerHTML=[['🏆 Total #'+p.rank],['👁 Views #'+(rk.views||p.rank)],['♥ Likes #'+(rk.likes||'–')],['📝 Posts #'+(rk.posts||'–')]].map(x=>`<span>${x[0]}</span>`).join('');
+  $('#pscore').textContent=p.moniScore==null?'':'Sorsa Score: '+fmt(p.moniScore);
+  $('#ptiles').innerHTML=[['Total views',p.views,1],['Total likes',p.likes],['Total posts',p.posts],['Engagement rate',p.er==null?null:p.er+'%']]
+    .map(t=>`<div class="tile${t[2]?' hot':''}"><span style="text-transform:uppercase;letter-spacing:.12em;font:500 .7rem var(--f-num)">${t[0]}</span><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b></div>`).join('');
+  drawChart(p.series||[]);
+  const d=x=>x?new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
+  $('#plife').innerHTML=`First post: ${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${d(p.first)}</a>`:'—'} · Last post: ${p.last?`<a href="${esc(safeUrl(p.last.url))}" target="_blank" rel="noopener">${d(p.last)}</a>`:'—'}`;
   $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
   const text=`I rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
   $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);

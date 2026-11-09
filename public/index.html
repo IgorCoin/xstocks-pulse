@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>xStocks Pulse</title>
-<meta name="description" content="See who is spreading the word about xStocks on X: views, likes, posts and points.">
+<meta name="description" content="See who is spreading the word about xStocks on X: views and likes.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
 /* Dark mint look: near-black ground, one mint accent, big mint numerals, mono eyebrow labels with a leading dash. */
@@ -106,7 +106,7 @@ body.nosf .sf{display:none}
   <section class="hero">
     <span class="eyebrow">X activity tracker</span>
     <h1>Who is spreading <span>xStocks</span> on X?</h1>
-    <p>Type any X handle to see how much it has helped xStocks grow: views, likes, posts and points.</p>
+    <p>Type any X handle to see how much it has helped xStocks grow: views and likes.</p>
     <form id="scanform">
       <input id="h" placeholder="@handle" autocomplete="off" spellcheck="false" maxlength="16" aria-label="X handle">
       <button class="primary" id="scan">Scan</button>
@@ -137,15 +137,14 @@ body.nosf .sf{display:none}
     <div class="bar">
       <h2 style="margin:0">Leaderboard</h2>
       <div class="pills" id="sort" role="tablist" aria-label="Rank by">
-        <button type="button" role="tab" data-v="points" aria-selected="true">Points</button>
-        <button type="button" role="tab" data-v="views" aria-selected="false">Views</button>
+        <button type="button" role="tab" data-v="views" aria-selected="true">Views</button>
         <button type="button" role="tab" data-v="likes" aria-selected="false">Likes</button>
         <button type="button" role="tab" data-v="posts" aria-selected="false">Posts</button>
         <button type="button" role="tab" data-v="smart" aria-selected="false" class="sf">Smart followers</button>
       </div>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>#</th><th>User</th><th>Points</th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Smart foll.</th><th class="sf">Moni</th></tr></thead>
+      <thead><tr><th>#</th><th>User</th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Smart foll.</th><th class="sf">Moni</th></tr></thead>
       <tbody id="rows"><tr><td colspan="8" class="na">Loading…</td></tr></tbody>
     </table></div>
   </section>
@@ -163,7 +162,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':Math.round(n).toLocaleString('en-US');
 const safeUrl=u=>/^https:\/\/(x|twitter)\.com\//.test(u)?u:'#';
-let stats=null,cur=null,sortBy='points';
+let stats=null,cur=null,sortBy='views';
 
 function msg(t,err){const m=$('#msg');m.textContent=t||'';m.className=err?'err':''}
 async function get(u,opt){const r=await fetch(u,opt);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
@@ -181,7 +180,7 @@ async function init(){
     const w=stats.weights;
     $('#counted').innerHTML=`<li>Original posts and quote posts. Retweets and replies are not counted.</li>
       <li>Only posts that tag @${esc(stats.official)} are counted.</li>
-      <li>Points = ${w.views*100}% of views + ${w.likes*100}% of likes + ${w.posts*100}% of posts${w.smart?` + ${w.smart*100}% of smart followers`:''}.</li>
+      <li>Ranked by views.</li>
       ${stats.smart?'<li>Smart followers and Moni score come from Moni and refresh daily.</li>':''}`;
   }
   board();
@@ -190,7 +189,7 @@ async function init(){
 async function board(){
   try{
     const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
-    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr data-u="${esc(r.user)}"><td class="rank">${r.rank}</td><td>${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px;background:#2a3436">`:''}@${esc(r.user)}</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="8" class="na">No data yet. The first index run is in progress.</td></tr>';
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr data-u="${esc(r.user)}"><td class="rank">${r.rank}</td><td>${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px;background:#2a3436">`:''}@${esc(r.user)}</td><td class="pts">${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="8" class="na">No data yet. The first index run is in progress.</td></tr>';
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="8" class="na">${esc(e.message)}</td></tr>`}
 }
 
@@ -200,13 +199,13 @@ function show(p){
   $('#pname').textContent=(p.name||'@'+p.user);
   $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers · rank #'+p.rank;
   const av=$('#pav');if(/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){av.src=p.avatar;av.hidden=false}else av.hidden=true;
-  $('#ptiles').innerHTML=[['Points',p.points,1],['Views',p.views],['Likes',p.likes],['Posts',p.posts],['Smart followers',p.smart],['Moni score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
+  $('#ptiles').innerHTML=[['Views',p.views,1],['Likes',p.likes],['Posts',p.posts],['Smart followers',p.smart],['Moni score',p.moniScore],['Engagement rate',p.er==null?null:p.er+'%']]
     .filter(t=>(stats&&stats.smart)||!/^(Smart|Moni)/.test(t[0]))
     .map(t=>`<div class="tile${t[2]?' hot':''}"><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b><span>${t[0]}</span></div>`).join('');
   const m=p.mentions;
   $('#mb').innerHTML=`<dt>Posts mentioning @${esc(stats?stats.official:'')}</dt><dd>${m.official}</dd><dt>First post</dt><dd>${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${new Date(p.first.created).toLocaleDateString()}</a>`:'—'}</dd>`;
   $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
-  const text=`I scored ${fmt(p.points)} points and rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
+  const text=`I rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
   $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);
   window.scrollTo({top:0});
 }
@@ -234,9 +233,9 @@ $('#png').onclick=()=>{
   x.fillStyle=mute;x.font='500 28px monospace';x.fillText('XSTOCKS PULSE',70,90);
   x.fillStyle=ink;x.font='800 76px sans-serif';x.fillText('@'+cur.user,70,200);
   x.fillStyle=mute;x.font='400 30px monospace';x.fillText('rank #'+cur.rank+' · '+fmt(cur.followers)+' followers',70,250);
-  x.fillStyle=acc;x.font='500 130px monospace';x.fillText(fmt(cur.points),70,410);
-  x.fillStyle=mute;x.font='400 28px monospace';x.fillText('POINTS',74,452);
-  const st=[['VIEWS',fmt(cur.views)],['LIKES',fmt(cur.likes)],['POSTS',String(cur.posts)]];
+  x.fillStyle=acc;x.font='500 130px monospace';x.fillText(fmt(cur.views),70,410);
+  x.fillStyle=mute;x.font='400 28px monospace';x.fillText('VIEWS',74,452);
+  const st=[['LIKES',fmt(cur.likes)],['POSTS',String(cur.posts)]];
   if(stats&&stats.smart)st.push(['SMART',fmt(cur.smart)]);
   st.forEach((s,i)=>{const px=70+i*280;x.fillStyle=mute;x.font='400 24px monospace';x.fillText(s[0],px,540);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(s[1],px,590)});
   const a=document.createElement('a');a.download='xstocks-pulse-'+cur.user+'.png';a.href=c.toDataURL('image/png');a.click();

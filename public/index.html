@@ -62,6 +62,8 @@ h2::before{content:"";width:26px;height:2px;background:var(--accent)}
 .pscore{font-weight:600;color:var(--accent);min-height:1em}
 .chart{border:1px solid var(--line);border-radius:14px;background:rgba(13,20,22,.55);padding:10px 12px 6px}
 .chart svg{display:block;width:100%;height:auto}
+.cardwrap{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.cardwrap img{width:100%;max-width:720px;height:auto;border-radius:14px;border:1px solid var(--line)}
 .plife{margin:0;color:var(--mute)}
 .prof-head{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}
 .who{display:flex;gap:12px;align-items:center;min-width:0}
@@ -149,6 +151,7 @@ body.nosf .sf{display:none}
       <div class="tiles" id="ptiles"></div>
       <div class="chart" id="pchart"></div>
       <p class="plife" id="plife"></p>
+      <h2>Share card</h2><div class="cardwrap"><img id="cardimg" alt="Profile card" hidden><button class="primary" id="png2">Download PNG</button></div>
       <h2>Top posts</h2><ol class="posts" id="ptop"></ol>
     </div>
   </section>
@@ -242,6 +245,7 @@ function show(p){
   $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
   const text=`I rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
   $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);
+  makeCard(p);
   window.scrollTo({top:0});
 }
 
@@ -259,22 +263,44 @@ $('#scanform').onsubmit=async e=>{
   catch(err){msg(err.message,true)}finally{$('#scan').disabled=false}
 };
 
-$('#png').onclick=()=>{
-  if(!cur)return;
+let cardC=null;
+const loadImg=u=>new Promise(r=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=u});
+async function drawCard(p,withAv){
   const c=document.createElement('canvas');c.width=1200;c.height=630;const x=c.getContext('2d');
   const bg='#151819',ink='#f3f6f5',mute='#9aa5a4',acc='#7ddcc8';
   x.fillStyle=bg;x.fillRect(0,0,1200,630);
-  x.fillStyle=acc;x.fillRect(0,0,1200,10);
-  x.fillStyle=mute;x.font='500 28px monospace';x.fillText('XSTOCKS PULSE',70,90);
-  x.fillStyle=ink;x.font='800 76px sans-serif';x.fillText('@'+cur.user,70,200);
-  x.fillStyle=mute;x.font='400 30px monospace';x.fillText('rank #'+cur.rank+' · '+fmt(cur.followers)+' followers',70,250);
-  x.fillStyle=acc;x.font='500 130px monospace';x.fillText(fmt(cur.views),70,410);
-  x.fillStyle=mute;x.font='400 28px monospace';x.fillText('VIEWS',74,452);
-  const st=[['LIKES',fmt(cur.likes)],['POSTS',String(cur.posts)]];
-  if(stats&&stats.smart&&cur.moniScore!=null)st.push(['SORSA',fmt(cur.moniScore)]);
-  st.forEach((s,i)=>{const px=70+i*280;x.fillStyle=mute;x.font='400 24px monospace';x.fillText(s[0],px,540);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(s[1],px,590)});
-  const a=document.createElement('a');a.download='xstocks-pulse-'+cur.user+'.png';a.href=c.toDataURL('image/png');a.click();
-};
+  const g=x.createRadialGradient(1050,40,10,1050,40,700);g.addColorStop(0,'rgba(125,220,200,.22)');g.addColorStop(1,'rgba(125,220,200,0)');x.fillStyle=g;x.fillRect(0,0,1200,630);
+  x.fillStyle=acc;x.fillRect(0,0,1200,8);
+  x.strokeStyle='#283234';x.lineWidth=2;x.strokeRect(24,24,1152,582);
+  let tx=70;
+  if(withAv&&/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){const im=await loadImg(p.avatar);if(im){x.save();x.beginPath();x.arc(130,130,60,0,7);x.clip();x.drawImage(im,70,70,120,120);x.restore();x.strokeStyle=acc;x.lineWidth=3;x.beginPath();x.arc(130,130,60,0,7);x.stroke();tx=215}}
+  x.fillStyle=ink;x.font='800 64px sans-serif';x.fillText((p.name||'@'+p.user).slice(0,22),tx,125);
+  x.fillStyle=mute;x.font='400 30px monospace';x.fillText('@'+p.user+' · '+fmt(p.followers)+' followers',tx,172);
+  const rk=p.ranks||{};
+  const bd=['Total #'+p.rank,'Views #'+(rk.views||p.rank),'Likes #'+(rk.likes||'-'),'Posts #'+(rk.posts||'-')];
+  let bx=70;x.font='500 26px monospace';
+  bd.forEach(t=>{const w=x.measureText(t).width+36;x.strokeStyle='#3d8478';x.lineWidth=2;x.beginPath();x.roundRect(bx,225,w,46,23);x.stroke();x.fillStyle=acc;x.fillText(t,bx+18,257);bx+=w+14});
+  x.fillStyle=acc;x.font='500 120px monospace';x.fillText(fmt(p.views),70,395);
+  x.fillStyle=mute;x.font='400 26px monospace';x.fillText('TOTAL VIEWS',74,435);
+  const st=[['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
+  if(p.moniScore!=null)st.push(['SORSA SCORE',fmt(p.moniScore)]);
+  st.forEach((q,i)=>{const px=70+i*250;x.fillStyle=mute;x.font='400 22px monospace';x.fillText(q[0],px,520);x.fillStyle=ink;x.font='500 44px monospace';x.fillText(q[1],px,568)});
+  const pts=p.series||[];
+  if(pts.length>1){const X0=640,X1=1130,Y0=330,Y1=560,t0=pts[0][0],t1=pts[pts.length-1][0],mx=pts[pts.length-1][1]||1;
+    const px=t=>X0+(t1===t0?0:(t-t0)/(t1-t0))*(X1-X0),py=v=>Y1-(v/mx)*(Y1-Y0);
+    x.beginPath();pts.forEach((q,i)=>i?x.lineTo(px(q[0]),py(q[1])):x.moveTo(px(q[0]),py(q[1])));
+    x.lineTo(px(t1),Y1);x.lineTo(px(t0),Y1);x.closePath();x.fillStyle='rgba(125,220,200,.14)';x.fill();
+    x.beginPath();pts.forEach((q,i)=>i?x.lineTo(px(q[0]),py(q[1])):x.moveTo(px(q[0]),py(q[1])));x.strokeStyle=acc;x.lineWidth=4;x.stroke();}
+  x.fillStyle=mute;x.font='500 22px monospace';x.textAlign='right';x.fillText('xstocks-pulse · '+location.host,1130,598);x.textAlign='left';
+  return c;
+}
+async function makeCard(p){
+  const im=$('#cardimg');im.hidden=true;cardC=null;
+  try{let c=await drawCard(p,true);let u;try{u=c.toDataURL('image/png')}catch(e){c=await drawCard(p,false);u=c.toDataURL('image/png')}
+    if(cur!==p)return;cardC=c;im.src=u;im.hidden=false}catch(e){}
+}
+const dl=()=>{if(!cardC||!cur)return;const a=document.createElement('a');a.download='xstocks-pulse-'+cur.user+'.png';a.href=cardC.toDataURL('image/png');a.click()};
+$('#png').onclick=dl;$('#png2').onclick=dl;
 init();
 </script>
 </body>

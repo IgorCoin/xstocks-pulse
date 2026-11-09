@@ -179,7 +179,7 @@ async function init(){
     if(stats.lastRun)$('#fresh').textContent='Data refreshes once every 24 hours. Last update: '+new Date(stats.lastRun).toLocaleString();
     if(stats.backfill)$('#fresh').textContent+=' Posts counted since '+(stats.backfill.done?stats.backfill.since:stats.backfill.from)+'.';
     const w=stats.weights;
-    $('#counted').innerHTML=`<li>Original posts, quote posts and replies with real commentary. Plain retweets and empty replies are excluded.</li>
+    $('#counted').innerHTML=`<li>Original posts and quote posts. Retweets and replies are not counted.</li>
       <li>Only posts that tag @${esc(stats.official)} are counted.</li>
       <li>Points = ${w.views*100}% of views + ${w.likes*100}% of likes + ${w.posts*100}% of posts${w.smart?` + ${w.smart*100}% of smart followers`:''}.</li>
       ${stats.smart?'<li>Smart followers and Moni score come from Moni and refresh daily.</li>':''}`;

@@ -6,7 +6,7 @@
   "excludeUsers": ["xStocksFi","BitsoArg","chainlink","rain","Mantle_Official","RWAFoundation_","OKXWallet_CN","apyx_fi","solana","wallet","BNBCHAIN","krakenfx","PancakeSwap","inkonchain","BitgetWallet","pendle_fi","Enter_Elysium","XLayerOfficial","Zebec_HQ","BitgetWalletCN","BitgetWalletJP","okx","veda_labs","SolanaHub_","TrustWallet","aave","Payward","PaywardServices","Hercules_Defi","GeniusTerminal","ether_fi","arbitrum","byreal_io","NestUSD","NestExchange","zerion","solflare","lifiprotocol","tradehotstuff","edeldotfinance","perpmefun","kucoincom","CoinMarketCap","Grayscale","TrojanOnSolana","1inch","nadoHQ","MeteoraAG","kamino","FlashTrade_","hotdao_","tokenterminal","BSCNews","DegenerateNews","solana_daily","SolanaFloor","BlocksterCom","CCIPMetrics","wintermute_t","DWFLabs","Mega_Fund","Bybit_Official","BitrueOfficial","KrakenWalletHQ","Bound_Exchange","GroveXchange","dydxfoundation","PythNetwork","tokens","kamino_swap","Aster_DEX","jup_mobile","benbybit","tydrohq","otomate_trade","Mihawk_Research","tr4ce4"],
   "keywords": ["xstocks"],
   "tags": ["$xstocks","#xstocks"],
-  "weights": {"views":1,"likes":0,"posts":0,"smart":0},
+  "weights": {"views":1,"likes":20,"posts":50,"smart":0},
   "substantiveReplyMinChars": 100000,
   "firstRunDays": 30,
   "refreshWindowDays": 2,

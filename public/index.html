@@ -190,7 +190,7 @@ async function init(){
 async function board(){
   try{
     const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
-    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr data-u="${esc(r.user)}"><td class="rank">${r.rank}</td><td>@${esc(r.user)}</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="8" class="na">No data yet. The first index run is in progress.</td></tr>';
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr data-u="${esc(r.user)}"><td class="rank">${r.rank}</td><td>${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px;background:#2a3436">`:''}@${esc(r.user)}</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.smart==null?'na':'sm'}">${fmt(r.smart)}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="8" class="na">No data yet. The first index run is in progress.</td></tr>';
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="8" class="na">${esc(e.message)}</td></tr>`}
 }
 

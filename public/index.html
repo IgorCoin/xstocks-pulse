@@ -178,13 +178,14 @@ tr.top3 td:first-child{box-shadow:inset 3px 0 0 #6fd0c8}
     <div class="bar">
       <h2 style="margin:0">Leaderboard</h2>
       <div class="pills" id="sort" role="tablist" aria-label="Rank by">
-        <button type="button" role="tab" data-v="views" aria-selected="true">Views</button>
+        <button type="button" role="tab" data-v="points" aria-selected="true">Points</button>
+        <button type="button" role="tab" data-v="views" aria-selected="false">Views</button>
         <button type="button" role="tab" data-v="likes" aria-selected="false">Likes</button>
         <button type="button" role="tab" data-v="posts" aria-selected="false">Posts</button>
       </div>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>#</th><th>User</th><th></th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Sorsa Score</th></tr></thead>
+      <thead><tr><th>#</th><th>User</th><th></th><th>Points</th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Sorsa Score</th></tr></thead>
       <tbody id="rows"><tr><td colspan="9" class="na">Loading…</td></tr></tbody>
     </table></div>
   </section>
@@ -202,7 +203,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'K':Math.round(n).toLocaleString('en-US');
 const safeUrl=u=>/^https:\/\/(x|twitter)\.com\//.test(u)?u:'#';
-let stats=null,cur=null,sortBy='views';
+let stats=null,cur=null,sortBy='points';
 
 function msg(t,err){const m=$('#msg');m.textContent=t||'';m.className=err?'err':''}
 async function get(u,opt){const r=await fetch(u,opt);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
@@ -228,7 +229,7 @@ async function init(){
 async function board(){
   try{
     const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
-    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b></div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b></div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="9" class="na">${esc(e.message)}</td></tr>`}
 }
 
@@ -251,15 +252,15 @@ function show(p){
   $('#pmeta').textContent='@'+p.user+' · '+fmt(p.followers)+' followers';
   const av=$('#pav');if(/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){av.src=p.avatar;av.hidden=false}else av.hidden=true;
   const rk=p.ranks||{};
-  $('#pbadges').innerHTML=[['🏆 Total #'+p.rank],['👁 Views #'+(rk.views||p.rank)],['♥ Likes #'+(rk.likes||'–')],['📝 Posts #'+(rk.posts||'–')]].map(x=>`<span>${x[0]}</span>`).join('');
+  $('#pbadges').innerHTML=[['🏆 Points #'+p.rank],['👁 Views #'+(rk.views||p.rank)],['♥ Likes #'+(rk.likes||'–')],['📝 Posts #'+(rk.posts||'–')]].map(x=>`<span>${x[0]}</span>`).join('');
   $('#pscore').textContent=p.moniScore==null?'':'Sorsa Score: '+fmt(p.moniScore);
-  $('#ptiles').innerHTML=[['Total views',p.views,1],['Total likes',p.likes],['Total posts',p.posts],['Engagement rate',p.er==null?null:p.er+'%']]
+  $('#ptiles').innerHTML=[['Points',p.points,1],['Total views',p.views],['Total likes',p.likes],['Total posts',p.posts],['Engagement rate',p.er==null?null:p.er+'%']]
     .map(t=>`<div class="tile${t[2]?' hot':''}"><span style="text-transform:uppercase;letter-spacing:.12em;font:500 .7rem var(--f-num)">${t[0]}</span><b>${typeof t[1]==='string'?esc(t[1]):fmt(t[1])}</b></div>`).join('');
   drawChart(p.series||[]);
   const d=x=>x?new Date(x.created).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
   $('#plife').innerHTML=`First post: ${p.first?`<a href="${esc(safeUrl(p.first.url))}" target="_blank" rel="noopener">${d(p.first)}</a>`:'—'} · Last post: ${p.last?`<a href="${esc(safeUrl(p.last.url))}" target="_blank" rel="noopener">${d(p.last)}</a>`:'—'}`;
   $('#ptop').innerHTML=(p.top||[]).map(t=>`<li><p>${esc(t.text)}</p><div class="meta"><a href="${esc(safeUrl(t.url))}" target="_blank" rel="noopener">Open</a><span>♥ ${fmt(t.likes)}</span><span>↺ ${fmt(t.rts)}</span><span>👁 ${fmt(t.views)}</span></div></li>`).join('')||'<li class="na">No posts.</li>';
-  const text=`I rank #${p.rank} on xStocks Pulse: ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
+  const text=`I rank #${p.rank} on xStocks Pulse: ${fmt(p.points)} points, ${fmt(p.views)} views, ${fmt(p.likes)} likes, ${p.posts} posts.`;
   $('#share').href='https://x.com/intent/post?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(location.origin);
   makeCard(p);
   window.scrollTo({top:0});
@@ -305,17 +306,17 @@ async function drawCard(p,withAv){
   x.fillText(nm,tx,128);
   x.fillStyle=mute;x.font='400 28px '+MONO;x.fillText('@'+p.user+' · '+fmt(p.followers)+' followers',tx,172);
   const rk=p.ranks||{};
-  const bd=['Total #'+p.rank,'Views #'+(rk.views||p.rank),'Likes #'+(rk.likes||'-'),'Posts #'+(rk.posts||'-')];
+  const bd=['Points #'+p.rank,'Views #'+(rk.views||p.rank),'Likes #'+(rk.likes||'-'),'Posts #'+(rk.posts||'-')];
   let bx=70;x.font='500 24px '+MONO;
   bd.forEach(t=>{const w=x.measureText(t).width+40;x.strokeStyle='rgba(126,203,232,.55)';x.lineWidth=2;x.beginPath();x.roundRect(bx,252,w,48,24);x.stroke();x.fillStyle='#9fe0ee';x.fillText(t,bx+20,285);bx+=w+14});
-  const box=[['TOTAL VIEWS',fmt(p.views),1],['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
+  const box=[['POINTS',fmt(p.points),1],['VIEWS',fmt(p.views)],['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
   if(p.moniScore!=null)box.push(['SORSA SCORE',fmt(p.moniScore)]);
   const gap=20,bw=(1060-gap*(box.length-1))/box.length,by=340,bh=190;
   box.forEach((q,i)=>{const px=70+i*(bw+gap);
     x.fillStyle=q[2]?'rgba(111,208,200,.10)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(px,by,bw,bh,22);x.fill();
     x.strokeStyle=q[2]?'rgba(111,208,200,.55)':'rgba(111,208,200,.22)';x.lineWidth=2;x.stroke();
-    x.fillStyle=mute;x.font='500 22px '+MONO;x.fillText(q[0],px+28,by+54);
-    x.fillStyle=q[2]?grad(px,px+bw):ink;x.font='800 '+(q[2]?78:62)+'px '+SANS;x.fillText(q[1],px+28,by+138)});
+    x.fillStyle=mute;x.font='500 22px '+MONO;x.font='500 20px '+MONO;x.fillText(q[0],px+24,by+54);
+    x.fillStyle=q[2]?grad(px,px+bw):ink;x.font='800 '+(q[2]?56:46)+'px '+SANS;x.fillText(q[1],px+24,by+138)});
   x.fillStyle=grad(70,300);x.font='800 28px '+SANS;x.fillText('xStocks Pulse',70,596);
   x.fillStyle=mute;x.font='400 22px '+MONO;x.textAlign='right';x.fillText(location.host,1130,596);x.textAlign='left';
   return c;

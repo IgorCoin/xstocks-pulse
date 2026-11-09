@@ -3,7 +3,7 @@
   "officialHandle": "xStocksFi",
   "searchQuery": "@xStocksFi -filter:replies",
   "requireOfficialTag": true,
-  "excludeUsers": ["xStocksFi","BitsoArg","chainlink","rain","Mantle_Official","RWAFoundation_","OKXWallet_CN","apyx_fi","solana","wallet","BNBCHAIN","krakenfx","PancakeSwap","inkonchain","BitgetWallet","pendle_fi","Enter_Elysium","XLayerOfficial","Zebec_HQ","BitgetWalletCN","BitgetWalletJP","okx","veda_labs","SolanaHub_","TrustWallet","aave","Payward","PaywardServices","Hercules_Defi","GeniusTerminal","ether_fi","arbitrum","byreal_io","NestUSD","NestExchange","zerion","solflare","lifiprotocol","tradehotstuff","edeldotfinance","perpmefun","kucoincom","CoinMarketCap","Grayscale","TrojanOnSolana","1inch","nadoHQ","MeteoraAG","kamino","FlashTrade_","hotdao_","tokenterminal","BSCNews","DegenerateNews","solana_daily","SolanaFloor","BlocksterCom","CCIPMetrics"],
+  "excludeUsers": ["xStocksFi","BitsoArg","chainlink","rain","Mantle_Official","RWAFoundation_","OKXWallet_CN","apyx_fi","solana","wallet","BNBCHAIN","krakenfx","PancakeSwap","inkonchain","BitgetWallet","pendle_fi","Enter_Elysium","XLayerOfficial","Zebec_HQ","BitgetWalletCN","BitgetWalletJP","okx","veda_labs","SolanaHub_","TrustWallet","aave","Payward","PaywardServices","Hercules_Defi","GeniusTerminal","ether_fi","arbitrum","byreal_io","NestUSD","NestExchange","zerion","solflare","lifiprotocol","tradehotstuff","edeldotfinance","perpmefun","kucoincom","CoinMarketCap","Grayscale","TrojanOnSolana","1inch","nadoHQ","MeteoraAG","kamino","FlashTrade_","hotdao_","tokenterminal","BSCNews","DegenerateNews","solana_daily","SolanaFloor","BlocksterCom","CCIPMetrics","wintermute_t","DWFLabs","Mega_Fund","Bybit_Official","BitrueOfficial","KrakenWalletHQ","Bound_Exchange","GroveXchange","dydxfoundation","PythNetwork"],
   "keywords": ["xstocks"],
   "tags": ["$xstocks", "#xstocks"],
   "weights": { "views": 0.025, "likes": 1, "posts": 2.5, "smart": 0 },
@@ -16,6 +16,14 @@
   "moniTtlHours": 24,
   "scan": { "perIpPerHour": 5, "globalPerDay": 100, "dailyBudgetUsd": 1, "maxPages": 15, "sinceDate": "2026-01-01", "cacheHours": 24 }
 }
+
+
+
+
+
+
+
+
 
 
 

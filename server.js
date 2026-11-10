@@ -73,7 +73,7 @@ async function api(req, res, url) {
 
   m = /^\/api\/addpost\/(\d{5,25})$/.exec(p);
   if (m && req.method === 'POST') {
-    const why = scanAllowed(clientIp(req)); if (why) return send(res, 429, { error: why });
+    if (!db.tweets[m[1]]) { const why = scanAllowed(clientIp(req)); if (why) return send(res, 429, { error: why }); } // already-counted posts cost nothing
     try {
       const r = await addPost(m[1]);
       if (r.error) return send(res, 422, { error: r.error });
@@ -81,7 +81,7 @@ async function api(req, res, url) {
       const a = A.find(x => x.user.toLowerCase() === r.user.toLowerCase());
       if (!a) return send(res, 404, { error: 'This author is not part of the leaderboard.' });
       const idx = A.slice().sort((x, y) => y.points - x.points).findIndex(x => x.user === a.user);
-      return send(res, 200, { rank: idx + 1, ...publicRow(a, true) });
+      return send(res, 200, { rank: idx + 1, added: r.added, ...publicRow(a, true) });
     } catch (e) { console.error('addpost failed', e.message); return send(res, 502, { error: 'Data provider is unavailable, try again later.' }); }
   }
 

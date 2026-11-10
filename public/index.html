@@ -133,6 +133,9 @@ tr.top2 td:first-child{box-shadow:inset 3px 0 0 #7ecbe8}
 tr.top3 td:first-child{box-shadow:inset 3px 0 0 #6fd0c8}
 .pts{color:var(--mint)}
 .chart svg path[stroke]{stroke:#7ecbe8}
+.pills button[data-v="points"]{font-weight:800;color:var(--accent);padding-inline:20px;border-color:var(--accent-line)}
+.pills button[data-v="points"]::before{content:"★ "}
+.pills button[data-v="points"][aria-selected="true"]{background:var(--grad);border-color:transparent;color:#0e2a24;box-shadow:0 0 0 3px rgba(111,208,200,.28),0 6px 18px rgba(111,208,200,.25)}
 </style>
 </head>
 <body>

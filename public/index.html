@@ -55,6 +55,10 @@ h2::before{content:"";width:26px;height:2px;background:var(--accent)}
 #profile{position:relative;overflow:hidden}
 .pbg{position:absolute;inset:0;background:url("/templar.jpg") right center/auto 105% no-repeat;mix-blend-mode:screen;opacity:.30;-webkit-mask-image:linear-gradient(to left,#000 15%,transparent 80%);mask-image:linear-gradient(to left,#000 15%,transparent 80%);pointer-events:none}
 .backbtn{align-self:flex-start;padding:8px 14px;font-size:.85rem}
+.addpost{width:min(560px,100%);text-align:center}
+.addpost summary{cursor:pointer;color:var(--mute);font-size:.85rem}
+.addpost summary:hover{color:var(--accent)}
+#addform{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
 .pin{position:relative;display:flex;flex-direction:column;gap:16px}
 .av.big{width:84px;height:84px;border:2px solid var(--accent-line)}
 .who h3{font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.04em}
@@ -154,6 +158,10 @@ tr.top3 td:first-child{box-shadow:inset 3px 0 0 #6fd0c8}
       <button class="primary" id="scan">Scan</button>
     </form>
     <div id="msg" role="status"></div>
+    <details class="addpost"><summary>Missing a post? Add it by link</summary>
+      <form id="addform"><input id="pl" placeholder="https://x.com/name/status/123…" autocomplete="off" spellcheck="false" aria-label="Post link"><button class="primary" id="addbtn">Add post</button></form>
+      <p class="hint">Works for posts that tag @xStocksFi, not replies or retweets.</p>
+    </details>
     <span class="hint" id="fresh">Data refreshes once every 24 hours.</span>
   </section>
 
@@ -283,6 +291,15 @@ $('#scanform').onsubmit=async e=>{
   $('#scan').disabled=true;msg('Scanning @'+h+'…');
   try{show(await get('/api/scan/'+encodeURIComponent(h),{method:'POST'}));msg('')}
   catch(err){msg(err.message,true)}finally{$('#scan').disabled=false}
+};
+
+$('#addform').onsubmit=async e=>{
+  e.preventDefault();
+  const m=/status(?:es)?\/(\d{5,25})/.exec($('#pl').value);
+  if(!m){msg('Paste a post link like https://x.com/name/status/123…',true);return}
+  $('#addbtn').disabled=true;msg('Adding post…');
+  try{show(await get('/api/addpost/'+m[1],{method:'POST'}));msg('');$('#pl').value=''}
+  catch(err){msg(err.message,true)}finally{$('#addbtn').disabled=false}
 };
 
 let cardC=null;

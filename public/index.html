@@ -54,6 +54,7 @@ h2::before{content:"";width:26px;height:2px;background:var(--accent)}
 .tile.hot b{color:var(--accent)}
 #profile{position:relative;overflow:hidden}
 .pbg{position:absolute;inset:0;background:url("/templar.jpg") right center/auto 105% no-repeat;mix-blend-mode:screen;opacity:.30;-webkit-mask-image:linear-gradient(to left,#000 15%,transparent 80%);mask-image:linear-gradient(to left,#000 15%,transparent 80%);pointer-events:none}
+.backbtn{align-self:flex-start;padding:8px 14px;font-size:.85rem}
 .pin{position:relative;display:flex;flex-direction:column;gap:16px}
 .av.big{width:84px;height:84px;border:2px solid var(--accent-line)}
 .who h3{font-size:clamp(2rem,6vw,3rem);line-height:1.05;letter-spacing:-.04em}
@@ -156,13 +157,13 @@ tr.top3 td:first-child{box-shadow:inset 3px 0 0 #6fd0c8}
   <section class="panel" id="profile" hidden>
     <div class="pbg" aria-hidden="true"></div>
     <div class="pin">
+      <button id="back" class="backbtn" type="button">← Back to leaderboard</button>
       <div class="who"><img class="av big" id="pav" alt="" hidden><div><h3 id="pname"></h3><small id="pmeta"></small></div></div>
       <div class="badges" id="pbadges"></div>
       <div class="pscore" id="pscore"></div>
       <div class="actions">
         <a class="btn primary" id="share" target="_blank" rel="noopener">Share on X</a>
         <button id="png">Download PNG</button>
-        <button id="back">Back to leaderboard</button>
       </div>
       <div class="tiles" id="ptiles"></div>
       <div class="chart" id="pchart"></div>

@@ -61,7 +61,7 @@ async function api(req, res, url) {
   m = /^\/api\/scan\/([^/]+)$/.exec(p);
   if (m && req.method === 'POST') {
     if (!HANDLE.test(m[1])) return send(res, 400, { error: 'Invalid handle' });
-    const known = db.scans[m[1].toLowerCase()] || db.users[m[1].toLowerCase()];
+    const kk = m[1].toLowerCase(); const known = db.scans[kk] || aggregate().some(a => a.user.toLowerCase() === kk);
     if (!known) { const why = scanAllowed(clientIp(req)); if (why) return send(res, 429, { error: why }); }
     try {
       const a = await scanHandle(m[1]);

@@ -298,7 +298,7 @@ $('#addform').onsubmit=async e=>{
   const m=/status(?:es)?\/(\d{5,25})/.exec($('#pl').value);
   if(!m){msg('Paste a post link like https://x.com/name/status/123…',true);return}
   $('#addbtn').disabled=true;msg('Adding post…');
-  try{show(await get('/api/addpost/'+m[1],{method:'POST'}));msg('');$('#pl').value=''}
+  try{const j=await get('/api/addpost/'+m[1],{method:'POST'});show(j);msg(j.added===false?'This post is already counted.':'Post added.');$('#pl').value=''}
   catch(err){msg(err.message,true)}finally{$('#addbtn').disabled=false}
 };
 

@@ -294,7 +294,7 @@ async function drawCard(p,withAv){
     const h=640,w=h*tp.width/tp.height,ix=1200-w+60;q.drawImage(tp,ix,-5,w,h);
     q.globalCompositeOperation='multiply';let tg=q.createLinearGradient(ix,0,1200,630);tg.addColorStop(0,'#7ecbe8');tg.addColorStop(1,'#6dd3b4');q.fillStyle=tg;q.fillRect(0,0,1200,630);
     q.globalCompositeOperation='destination-in';let mk=q.createLinearGradient(ix,0,1200,0);mk.addColorStop(0,'rgba(0,0,0,0)');mk.addColorStop(.45,'rgba(0,0,0,.9)');mk.addColorStop(1,'#000');q.fillStyle=mk;q.fillRect(0,0,1200,630);
-    x.save();x.globalCompositeOperation='screen';x.globalAlpha=.8;x.drawImage(o,0,0);x.restore()}
+    x.save();x.globalCompositeOperation='screen';x.globalAlpha=.55;x.drawImage(o,0,0);x.restore()}
   x.fillStyle=grad(0,1200);x.fillRect(0,0,1200,8);
   let tx=70;
   if(withAv&&/^https:\/\/pbs\.twimg\.com\//.test(p.avatar||'')){const im=await loadImg(p.avatar);if(im){
@@ -311,12 +311,13 @@ async function drawCard(p,withAv){
   bd.forEach(t=>{const w=x.measureText(t).width+40;x.strokeStyle='rgba(126,203,232,.55)';x.lineWidth=2;x.beginPath();x.roundRect(bx,252,w,48,24);x.stroke();x.fillStyle='#9fe0ee';x.fillText(t,bx+20,285);bx+=w+14});
   const box=[['POINTS',fmt(p.points),1],['VIEWS',fmt(p.views)],['LIKES',fmt(p.likes)],['POSTS',String(p.posts)]];
   if(p.moniScore!=null)box.push(['SORSA SCORE',fmt(p.moniScore)]);
-  const gap=20,bw=(1060-gap*(box.length-1))/box.length,by=340,bh=190;
-  box.forEach((q,i)=>{const px=70+i*(bw+gap);
-    x.fillStyle=q[2]?'rgba(111,208,200,.10)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(px,by,bw,bh,22);x.fill();
-    x.strokeStyle=q[2]?'rgba(111,208,200,.55)':'rgba(111,208,200,.22)';x.lineWidth=2;x.stroke();
-    x.fillStyle=mute;x.font='500 22px '+MONO;x.font='500 20px '+MONO;x.fillText(q[0],px+24,by+54);
-    x.fillStyle=q[2]?grad(px,px+bw):ink;x.font='800 '+(q[2]?56:46)+'px '+SANS;x.fillText(q[1],px+24,by+138)});
+  const gap=16,tw=1060-gap*(box.length-1),un=box.reduce((t,q)=>t+(q[2]?1.5:1),0),by=340,bh=190;let px=70;
+  box.forEach(q=>{const bw=tw*(q[2]?1.5:1)/un;
+    x.fillStyle=q[2]?'rgba(14,30,28,.9)':'rgba(16,20,21,.86)';x.beginPath();x.roundRect(px,by,bw,bh,22);x.fill();
+    x.strokeStyle=q[2]?'rgba(111,208,200,.7)':'rgba(111,208,200,.3)';x.lineWidth=2;x.stroke();
+    x.fillStyle=q[2]?'#9fe0ee':'#b4bfbe';x.font='500 19px '+MONO;x.fillText(q[0],px+22,by+50);
+    let fs=q[2]?64:52;x.font='800 '+fs+'px '+SANS;while(x.measureText(q[1]).width>bw-44&&fs>24){fs-=2;x.font='800 '+fs+'px '+SANS}
+    x.fillStyle=q[2]?grad(px,px+bw):'#ffffff';x.fillText(q[1],px+22,by+140);px+=bw+gap});
   x.fillStyle=grad(70,300);x.font='800 28px '+SANS;x.fillText('xStocks Pulse',70,596);
   x.fillStyle=mute;x.font='400 22px '+MONO;x.textAlign='right';x.fillText(location.host,1130,596);x.textAlign='left';
   return c;

@@ -224,7 +224,8 @@ async function init(){
     const w=stats.weights;
     $('#counted').innerHTML=`<li>Original posts and quote posts. Retweets and replies are not counted.</li>
       <li>Only posts that tag @${esc(stats.official)} are counted.</li>
-      <li>Ranked by views.</li>
+      <li><b>Points</b> = Posts × ${w.posts} + Likes × ${w.likes} + Views × ${w.views}. Posts count the most, then likes, then views, so consistent contributors rank highest.</li>
+      <li>The leaderboard is ranked by Points.</li>
       ${stats.smart?'<li>Sorsa Score comes from Sorsa and refreshes daily.</li>':''}`;
   }
   board();

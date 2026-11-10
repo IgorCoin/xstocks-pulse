@@ -14,5 +14,5 @@
   "backfill": {"sinceDate":"2026-01-01","chunkDays":1,"maxPagesPerChunk":25,"maxBudgetUsd":1,"pricePerTweetUsd":0.00015},
   "moniTopN": 100,
   "moniTtlHours": 24,
-  "scan": {"perIpPerHour":5,"globalPerDay":100,"dailyBudgetUsd":1,"maxPages":15,"sinceDate":"2026-01-01","cacheHours":24}
+  "scan": {"perIpPerHour":10,"globalPerDay":500,"dailyBudgetUsd":5,"maxPages":15,"sinceDate":"2026-01-01","cacheHours":24}
 }

@@ -186,7 +186,7 @@ tr.top3 td:first-child{box-shadow:inset 3px 0 0 #6fd0c8}
       </div>
     </div>
     <div class="scroll"><table>
-      <thead><tr><th>#</th><th>User</th><th></th><th>Points</th><th>Views</th><th>Likes</th><th>Posts</th><th class="sf">Sorsa Score</th></tr></thead>
+      <thead><tr><th>#</th><th>User</th><th></th><th>Points</th><th>Views</th><th>Likes</th><th>Posts</th><th>Eng. rate</th><th class="sf">Sorsa Score</th></tr></thead>
       <tbody id="rows"><tr><td colspan="9" class="na">Loading…</td></tr></tbody>
     </table></div>
   </section>
@@ -230,7 +230,7 @@ async function init(){
 async function board(){
   try{
     const j=await get('/api/leaderboard?limit=100&sort='+sortBy);
-    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b></div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
+    $('#rows').innerHTML=j.rows.length?j.rows.map(r=>`<tr class="${r.rank<=3?'top'+r.rank:''}" data-u="${esc(r.user)}"><td class="rank">${['','🥇','🥈','🥉'][r.rank]||r.rank}</td><td><div class="u">${/^https:\/\/pbs\.twimg\.com\//.test(r.avatar||'')?`<img class="av" src="${esc(r.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">`:'<span class="av"></span>'}<div><b>@${esc(r.user)}</b></div></div></td><td class="vw">view →</td><td class="pts">${fmt(r.points)}</td><td>${fmt(r.views)}</td><td>${fmt(r.likes)}</td><td>${r.posts}</td><td>${r.er==null?'—':r.er+'%'}</td><td class="sf ${r.moniScore==null?'na':''}">${fmt(r.moniScore)}</td></tr>`).join(''):'<tr><td colspan="9" class="na">No data yet. The first index run is in progress.</td></tr>';
   }catch(e){$('#rows').innerHTML=`<tr><td colspan="9" class="na">${esc(e.message)}</td></tr>`}
 }
 
